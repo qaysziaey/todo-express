@@ -3,8 +3,8 @@ const postgres = require("@vercel/postgres");
 const cors = require("cors");
 const app = express();
 
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", async (request, response) => {
