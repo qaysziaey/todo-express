@@ -3,8 +3,8 @@ const postgres = require("@vercel/postgres");
 const cors = require("cors");
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", async (request, response) => {
@@ -50,6 +50,20 @@ app.delete("/:tofu", async (request, response) => {
   }
 
   response.json({ message: "Successfully deleted note." });
+});
+
+// update table
+app.put("/:id", async (request, response) => {
+  createNotes();
+  //table was created => load data
+  const { id } = request.params;
+  const { content } = request.body;
+
+  if (!content) {
+    return response.json({ error: "Note NOT updated. Content is missing." });
+  }
+  await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id}`;
+  response.json({ message: "Successfully updated note." });
 });
 
 // default catch-all handler
