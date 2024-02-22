@@ -79,12 +79,30 @@ app.get("/users/:user", async (request, response) => {
 app.get("/users/:user/:id", async (request, response) => {
   createTables();
   const { user, id } = request.params;
+
   const { rows } = await postgres.sql`SELECT  todos.*, users.name
     FROM users
     LEFT JOIN todos ON todos."userId" = users.id 
     WHERE users.name = ${user} AND todos.id = ${id}`;
   // SELECT todos.* === todos.content, todos.id
   return response.json(rows);
+});
+
+/**
+ * Create another route with method PUT
+ * - specific route => "/users/:user/:id"
+ * - update todo of the incoming id and user
+ */
+
+app.put("/users/:user/:id", async (request, response) => {
+  createTables();
+  const { user, id } = request.params;
+  const { content } = JSON.parse(request.body);
+  if (!content) {
+    return response.json({ error: "Note NOT updated. Content is missing." });
+  }
+  await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id} AND "userId" = ${user}`;
+  response.json({ message: "Successfully updated note." });
 });
 
 // default catch-all handler
