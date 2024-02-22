@@ -3,8 +3,8 @@ const postgres = require("@vercel/postgres");
 const cors = require("cors");
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", async (request, response) => {
@@ -97,11 +97,11 @@ app.get("/users/:user/:id", async (request, response) => {
 app.put("/users/:user/:id", async (request, response) => {
   createTables();
   const { user, id } = request.params;
-  const { content } = JSON.parse(request.body);
+  const { content } = request.body;
   if (!content) {
     return response.json({ error: "Note NOT updated. Content is missing." });
   }
-  await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id} AND "userId" = ${user}`;
+  await postgres.sql`UPDATE todos SET content = ${content} FROM users WHERE todos."userId" = ${id} AND users.name = ${user}`;
   response.json({ message: "Successfully updated note." });
 });
 
