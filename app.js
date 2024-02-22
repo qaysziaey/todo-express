@@ -71,19 +71,19 @@ app.get("/users/:user", async (request, response) => {
   const { user } = request.params;
   const { rows } = await postgres.sql`SELECT *
     FROM todos 
-    RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = 'Sarah'`;
+    RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = ${user}`;
   return response.json(rows);
 });
 
 // select todos of a specific user
-app.get("/users/:user/:id", async (request, response) => {
-  createTables();
-  const { user, id } = request.params;
-  const { rows } = await postgres.sql`SELECT *
-    FROM todos 
-    RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = ${user} AND todos.id = ${id}`;
-  return response.json(rows);
-});
+// app.get("/users/:user/:id", async (request, response) => {
+//   createTables();
+//   const { user, id } = request.params;
+//   const { rows } = await postgres.sql`SELECT *
+//     FROM todos
+//     RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = ${user} AND todos.id = ${id}`;
+//   return response.json(rows);
+// });
 
 // default catch-all handler
 app.get("*", (request, response) => {
