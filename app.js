@@ -69,8 +69,19 @@ app.put("/:id", async (request, response) => {
 app.get("/users/:user", async (request, response) => {
   createTables();
   const { user } = request.params;
-  const { rows } =
-    await postgres.sql`SELECT * FROM users notes RIGHT JOIN todos ON notes.id = todos.user_id WHERE name = ${user}`;
+  const { rows } = await postgres.sql`SELECT *
+    FROM todos 
+    RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = 'Sarah'`;
+  return response.json(rows);
+});
+
+// select todos of a specific user
+app.get("/users/:user/:id", async (request, response) => {
+  createTables();
+  const { user, id } = request.params;
+  const { rows } = await postgres.sql`SELECT *
+    FROM todos 
+    RIGHT JOIN users ON todos."userId" = users.id WHERE users.name = ${user} AND todos.id = ${id}`;
   return response.json(rows);
 });
 
@@ -90,9 +101,10 @@ async function createTables() {
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) UNIQUE
     )`;
+
   await postgres.sql`CREATE TABLE IF NOT EXISTS todos (
       id SERIAL PRIMARY KEY,
       content VARCHAR(255),
-      user_id INTEGER REFERENCES users(id)  
+      "userId" INTEGER REFERENCES users(id)  
   )`;
 }
