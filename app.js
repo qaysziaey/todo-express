@@ -8,14 +8,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", async (request, response) => {
-  createNotes();
+  createTables();
   //table was created => load data
   const { rows } = await postgres.sql`SELECT * FROM todos`;
   return response.json(rows);
 });
 
 app.get("/:id", async (request, response) => {
-  createNotes();
+  createTables();
   //table was created => load data
   const { id } = request.params;
   const { rows } = await postgres.sql`SELECT * FROM todos WHERE id = ${id}`;
@@ -28,7 +28,7 @@ app.get("/:id", async (request, response) => {
 });
 
 app.post("/", async (request, response) => {
-  createNotes();
+  createTables();
   const { content } = JSON.parse(request.body);
   if (content) {
     await postgres.sql`INSERT INTO todos (content) VALUES (${content})`;
@@ -40,7 +40,7 @@ app.post("/", async (request, response) => {
 
 /* vegan delete route */
 app.delete("/:tofu", async (request, response) => {
-  createNotes();
+  createTables();
   /* const  tofu  = request.params.tofu; */
   const { tofu } = request.params;
   const { rowCount } = await postgres.sql`DELETE FROM todos WHERE id = ${tofu}`;
@@ -54,16 +54,24 @@ app.delete("/:tofu", async (request, response) => {
 
 // update table
 app.put("/:id", async (request, response) => {
-  createNotes();
+  createTables();
   //table was created => load data
   const { id } = request.params;
-  const { content } = request.body;
+  const { content } = JSON.parse(request.body);
 
   if (!content) {
     return response.json({ error: "Note NOT updated. Content is missing." });
   }
   await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id}`;
   response.json({ message: "Successfully updated note." });
+});
+
+app.get("/users/:user", async (request, response) => {
+  createTables();
+  const { user } = request.params;
+  const { rows } =
+    await postgres.sql`SELECT * FROM users notes RIGHT JOIN todos ON notes.id = todos.user_id WHERE name = ${user}`;
+  return response.json(rows);
 });
 
 // default catch-all handler
@@ -77,9 +85,14 @@ module.exports = app;
  * - we want to create a new table called notes
  * - from within our code
  */
-async function createNotes() {
-  await postgres.sql`CREATE TABLE IF NOT EXISTS todos (
+async function createTables() {
+  await postgres.sql`CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        content VARCHAR(255)
+        name VARCHAR(255) UNIQUE
     )`;
+  await postgres.sql`CREATE TABLE IF NOT EXISTS todos (
+      id SERIAL PRIMARY KEY,
+      content VARCHAR(255),
+      user_id INTEGER REFERENCES users(id)  
+  )`;
 }
