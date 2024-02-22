@@ -101,7 +101,7 @@ app.put("/users/:user/:id", async (request, response) => {
   if (!content) {
     return response.json({ error: "Note NOT updated. Content is missing." });
   }
-  await postgres.sql`UPDATE todos SET content = ${content} FROM users WHERE todos."userId" = ${id} AND users.name = ${user}`;
+  await postgres.sql`UPDATE todos SET content = ${content} FROM users WHERE todos.id = ${id} AND users.name = ${user}`;
   response.json({ message: "Successfully updated note." });
 });
 
