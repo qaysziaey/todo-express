@@ -3,7 +3,7 @@ const express = require("express");
 const postgres = require("@vercel/postgres");
 const cors = require("cors");
 const app = express();
-
+const port = 3000;
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -26,13 +26,6 @@ app.get("/:id", async (request, response) => {
   }
 
   return response.json(rows[0]);
-});
-
-// Select all users in the table
-app.get("/users", async (request, response) => {
-  createTables();
-  const { rows } = await postgres.sql`SELECT * FROM users`;
-  return response.json(rows);
 });
 
 app.post("/", async (request, response) => {
@@ -72,6 +65,13 @@ app.put("/:id", async (request, response) => {
   }
   await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id}`;
   response.json({ message: "Successfully updated note." });
+});
+
+// Select all users in the table
+app.get("/users", async (request, response) => {
+  createTables();
+  const { rows } = await postgres.sql`SELECT * FROM users`;
+  return response.json(rows);
 });
 
 app.get("/users/:user", async (request, response) => {
@@ -137,6 +137,6 @@ async function createTables() {
   )`;
 }
 
-const server = app.listen(port, () =>
-  console.log(`Express app listening on port ${port}!`)
-);
+// const server = app.listen(port, () =>
+//   console.log(`Express app listening on port ${port}!`)
+// );
