@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const postgres = require("@vercel/postgres");
 const cors = require("cors");
@@ -25,6 +26,13 @@ app.get("/:id", async (request, response) => {
   }
 
   return response.json(rows[0]);
+});
+
+// Select all users in the table
+app.get("/users", async (request, response) => {
+  createTables();
+  const { rows } = await postgres.sql`SELECT * FROM users`;
+  return response.json(rows);
 });
 
 app.post("/", async (request, response) => {
@@ -128,3 +136,7 @@ async function createTables() {
       "userId" INTEGER REFERENCES users(id)  
   )`;
 }
+
+const server = app.listen(port, () =>
+  console.log(`Express app listening on port ${port}!`)
+);
