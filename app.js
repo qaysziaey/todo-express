@@ -15,6 +15,14 @@ app.get("/", async (request, response) => {
   return response.json(rows);
 });
 
+// Select all users in the table
+app.get("/users", async (request, response) => {
+  createTables();
+
+  const { rows } = await postgres.sql`SELECT name FROM users`;
+  return response.json(rows);
+});
+
 app.get("/:id", async (request, response) => {
   createTables();
   //table was created => load data
@@ -40,11 +48,11 @@ app.post("/", async (request, response) => {
 });
 
 /* vegan delete route */
-app.delete("/:tofu", async (request, response) => {
+app.delete("/:id", async (request, response) => {
   createTables();
   /* const  tofu  = request.params.tofu; */
-  const { tofu } = request.params;
-  const { rowCount } = await postgres.sql`DELETE FROM todos WHERE id = ${tofu}`;
+  const { id } = request.params;
+  const { rowCount } = await postgres.sql`DELETE FROM todos WHERE id = ${id}`;
 
   if (!rowCount) {
     return response.json({ error: "Note not found." });
@@ -65,13 +73,6 @@ app.put("/:id", async (request, response) => {
   }
   await postgres.sql`UPDATE todos SET content = ${content} WHERE id = ${id}`;
   response.json({ message: "Successfully updated note." });
-});
-
-// Select all users in the table
-app.get("/users", async (request, response) => {
-  createTables();
-  const { rows } = await postgres.sql`SELECT * FROM users`;
-  return response.json(rows);
 });
 
 app.get("/users/:user", async (request, response) => {
